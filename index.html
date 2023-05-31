@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Online Reservation System</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="script.js"></script>
+</head>
+<body>
+    <h1>Online Reservation System</h1>
+
+    <?php
+    session_start();
+    if (isset($_SESSION['reservation_success'])) {
+        echo '<div class="success-message">' . $_SESSION['reservation_success'] . '</div>';
+        unset($_SESSION['reservation_success']);
+    }
+    ?>
+
+    <div id="reservation-form">
+        <h2>Make a Reservation</h2>
+        <form method="POST" action="reserve.php">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <br>
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+            <br>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</body>
+</html>
+h1 {
+    text-align: center;
+}
+
+#reservation-form {
+    margin: 20px auto;
+    width: 300px;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.success-message {
+    color: green;
+    text-align: center;
+    margin-bottom: 10px;
+}
+<?php
+session_start();
+
+// Perform any necessary input validation and security checks
+
+// Get form data
+$name = $_POST['name'];
+$date = $_POST['date'];
+
+// Connect to the MySQL database
+$dbHost = 'localhost';
+$dbUser = 'username';
+$dbPass = 'password';
+$dbName = 'reservation_system';
+
+$conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Insert reservation into the database
+$sql = "INSERT INTO reservations (name, date) VALUES ('$name', '$date')";
+if ($conn->query($sql) === true) {
+    $_SESSION['reservation_success'] = "Reservation made successfully!";
+} else {
+    echo "Error: " . $sql . "<br>" . $conn->error;
+}
+
+$conn->close();
+
+// Redirect back to the reservation form
+header("Location: index.html");
+exit();
+?>
